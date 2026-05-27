@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: rag-studio
+  labels:
+    app.kubernetes.io/name: worker
+    app.kubernetes.io/part-of: rag-studio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: worker
+        app.kubernetes.io/part-of: rag-studio
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/vishal-ml-ds/rag-studio/api:latest
+          imagePullPolicy: Always
+          command: ["celery"]
+          args:
+            - "-A"
+            - "app.worker:celery_app"
+            - "worker"
+            - "-l"
+            - "info"
+            - "-Q"
+            - "default"
+          envFrom:
+            - configMapRef:
+                name: ragstudio-config
+            - secretRef:
+                name: ragstudio-secrets
+          resources:
+            requests:
+              cpu:    "250m"
+              memory: "512Mi"
+            limits:
+              cpu:    "2"
+              memory: "2Gi"
