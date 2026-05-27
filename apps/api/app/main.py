@@ -22,12 +22,14 @@ from app.observability.context import (
     clear_observability_context,
 )
 from app.observability.logging_setup import configure_logging
+from app.observability.metrics import observe_http_request
 from app.routers.auth import router as auth_router
-from app.routers.designer import router as designer_router
 from app.routers.autopilot import router as autopilot_router
+from app.routers.designer import router as designer_router
 from app.routers.evaluation import router as evaluation_router
 from app.routers.guardrails import router as guardrails_router
 from app.routers.health import router as health_router
+from app.routers.metrics import router as metrics_router
 from app.routers.projects import router as projects_router
 from app.routers.templates import router as templates_router
 
@@ -165,7 +167,8 @@ def create_app() -> FastAPI:
 
         try:
             response = await call_next(request)
-            duration_ms = round((time.perf_counter() - start) * 1000, 2)
+            elapsed = max(time.perf_counter() - start, 1e-9)
+            duration_ms = round(elapsed * 1000, 2)
 
             response.headers["X-Request-ID"] = request_id
             response.headers.setdefault("X-Correlation-ID", correlation_id)
@@ -180,6 +183,15 @@ def create_app() -> FastAPI:
                 status_code=response.status_code,
                 duration_ms=duration_ms,
             )
+
+            if settings.prometheus_metrics_enabled:
+                observe_http_request(
+                    method=request.method,
+                    route=request.url.path,
+                    status_code=response.status_code,
+                    duration_seconds=elapsed,
+                )
+
             return response
 
         except Exception:
@@ -195,6 +207,7 @@ def create_app() -> FastAPI:
         finally:
             clear_observability_context()
 
+    app.include_router(metrics_router)
     app.include_router(health_router)
     app.include_router(auth_router)
     app.include_router(projects_router)
