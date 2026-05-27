@@ -9,6 +9,8 @@ from collections.abc import Callable
 from enum import Enum
 
 from app.core.export.python_exporter import export_python
+from app.core.export.terraform_exporter import export_terraform
+from app.core.export.yaml_exporter import export_yaml
 
 
 class ExportFormat(str, Enum):
@@ -23,6 +25,8 @@ Exporter = Callable[..., str]
 
 EXPORTERS: dict[ExportFormat, Exporter] = {
     ExportFormat.PYTHON: export_python,
+    ExportFormat.YAML: export_yaml,
+    ExportFormat.TERRAFORM: export_terraform,
 }
 
 
