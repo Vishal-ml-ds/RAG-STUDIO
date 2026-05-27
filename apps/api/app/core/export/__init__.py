@@ -8,6 +8,8 @@ Supported formats are registered in :data:`EXPORTERS` and mirrored on
 from collections.abc import Callable
 from enum import Enum
 
+from app.core.export.docker_compose_exporter import export_docker_compose
+from app.core.export.kubernetes_exporter import export_kubernetes
 from app.core.export.python_exporter import export_python
 from app.core.export.terraform_exporter import export_terraform
 from app.core.export.yaml_exporter import export_yaml
@@ -27,6 +29,8 @@ EXPORTERS: dict[ExportFormat, Exporter] = {
     ExportFormat.PYTHON: export_python,
     ExportFormat.YAML: export_yaml,
     ExportFormat.TERRAFORM: export_terraform,
+    ExportFormat.DOCKER_COMPOSE: export_docker_compose,
+    ExportFormat.KUBERNETES: export_kubernetes,
 }
 
 
