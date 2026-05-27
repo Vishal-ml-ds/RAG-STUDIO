@@ -11,17 +11,26 @@ from typing import Any
 
 from app.config import get_settings
 
-# Repo layout: apps/api/app/core/templates.py → ../../../../data/templates.json
-_DEFAULT_PATH = (
-    Path(__file__).resolve().parents[3] / "data" / "templates.json"
-)
+
+def _find_data_file(filename: str) -> Path:
+    """Locate ``data/<filename>`` by walking up from this module until the
+    repo root is found.
+    """
+    cursor = Path(__file__).resolve()
+    for parent in cursor.parents:
+        candidate = parent / "data" / filename
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(
+        f"Could not locate data/{filename} starting from {cursor}"
+    )
 
 
 def _catalog_path() -> Path:
     override = get_settings().templates_catalog_path.strip()
     if override:
         return Path(override).expanduser().resolve()
-    return _DEFAULT_PATH
+    return _find_data_file("templates.json")
 
 
 @lru_cache
