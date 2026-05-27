@@ -26,6 +26,7 @@ from app.routers.auth import router as auth_router
 from app.routers.designer import router as designer_router
 from app.routers.health import router as health_router
 from app.routers.projects import router as projects_router
+from app.routers.templates import router as templates_router
 
 logger = structlog.get_logger(__name__)
 
@@ -195,6 +196,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(projects_router)
     app.include_router(designer_router)
+    app.include_router(templates_router)
 
     return app
 
