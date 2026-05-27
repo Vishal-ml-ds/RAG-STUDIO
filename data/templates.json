@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "pdf-chatbot",
+      "name": "PDF Chatbot",
+      "description": "Conversational Q&A over a folder of PDF documents using dense retrieval.",
+      "category": "document-qa",
+      "tags": ["pdf", "qa", "chatbot", "starter"],
+      "recommended_use_cases": [
+        "Internal knowledge base over user manuals",
+        "Legal contract Q&A",
+        "Research paper assistant"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "files", "paths": ["./docs"] },
+        "document_loader": { "loaders": ["pdf"] },
+        "chunking": { "strategy": "recursive", "chunk_size": 1000, "chunk_overlap": 200 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-small" },
+        "vector_store": { "provider": "qdrant", "collection": "pdf_chatbot" },
+        "retrieval": { "strategy": "dense", "top_k": 4 },
+        "reranker": { "enabled": false, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 3000, "include_metadata": true },
+        "prompt": {
+          "system": "You are a precise assistant answering questions from PDF documents. Always cite the source.",
+          "user_template": "{question}\n\nContext:\n{context}"
+        },
+        "generator": { "provider": "openai", "model": "gpt-4o-mini", "temperature": 0.1 },
+        "guardrails": { "input": ["pii"], "output": ["toxicity", "hallucination"] },
+        "human_in_the_loop": { "enabled": false, "trigger": "low_confidence" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "docker-compose" },
+        "review": { "exports": ["python", "yaml"] }
+      }
+    },
+    {
+      "id": "wikipedia-qa",
+      "name": "Wikipedia QA",
+      "description": "Open-domain question answering over Wikipedia dumps with hybrid retrieval.",
+      "category": "open-domain-qa",
+      "tags": ["wikipedia", "qa", "hybrid", "open-domain"],
+      "recommended_use_cases": [
+        "Fact-check assistant",
+        "Trivia and quiz applications",
+        "General-knowledge agents"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "urls", "paths": ["https://dumps.wikimedia.org/enwiki/latest/"] },
+        "document_loader": { "loaders": ["html"] },
+        "chunking": { "strategy": "recursive", "chunk_size": 800, "chunk_overlap": 150 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-small" },
+        "vector_store": { "provider": "qdrant", "collection": "wikipedia" },
+        "retrieval": { "strategy": "hybrid", "top_k": 8 },
+        "reranker": { "enabled": true, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 4000, "include_metadata": true },
+        "prompt": {
+          "system": "You are an encyclopedic assistant. Answer factually and concisely, citing article titles.",
+          "user_template": "Question: {question}\n\nRelevant Wikipedia excerpts:\n{context}"
+        },
+        "generator": { "provider": "openai", "model": "gpt-4o-mini", "temperature": 0.0 },
+        "guardrails": { "input": ["pii"], "output": ["toxicity", "bias", "hallucination"] },
+        "human_in_the_loop": { "enabled": false, "trigger": "low_confidence" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision", "context_recall"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "kubernetes" },
+        "review": { "exports": ["python", "yaml", "kubernetes"] }
+      }
+    },
+    {
+      "id": "code-search",
+      "name": "Code Search Assistant",
+      "description": "Semantic code search and explanation over a repository or monorepo.",
+      "category": "code-intelligence",
+      "tags": ["code", "search", "developer-tools", "embeddings"],
+      "recommended_use_cases": [
+        "Internal codebase navigation",
+        "Onboarding new engineers",
+        "Cross-repo function lookup"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "files", "paths": ["./src", "./apps"] },
+        "document_loader": { "loaders": ["code", "markdown"] },
+        "chunking": { "strategy": "ast", "chunk_size": 1500, "chunk_overlap": 100 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-large" },
+        "vector_store": { "provider": "qdrant", "collection": "code_search" },
+        "retrieval": { "strategy": "dense", "top_k": 6 },
+        "reranker": { "enabled": false, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 6000, "include_metadata": true },
+        "prompt": {
+          "system": "You are a senior software engineer. Explain code clearly, reference file paths and line numbers.",
+          "user_template": "{question}\n\nRelevant code:\n{context}"
+        },
+        "generator": { "provider": "anthropic", "model": "claude-3-5-sonnet-latest", "temperature": 0.0 },
+        "guardrails": { "input": [], "output": ["toxicity"] },
+        "human_in_the_loop": { "enabled": false, "trigger": "low_confidence" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "docker-compose" },
+        "review": { "exports": ["python", "docker-compose"] }
+      }
+    },
+    {
+      "id": "support-knowledge-base",
+      "name": "Customer Support Knowledge Base",
+      "description": "Support agent assistant grounded in product docs, FAQs, and historical tickets.",
+      "category": "customer-support",
+      "tags": ["support", "tickets", "faq", "saas"],
+      "recommended_use_cases": [
+        "Tier-1 support deflection",
+        "Agent assist sidebar",
+        "Self-serve help center"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "mixed", "paths": ["./docs", "./faq", "./tickets"] },
+        "document_loader": { "loaders": ["pdf", "html", "markdown", "json"] },
+        "chunking": { "strategy": "recursive", "chunk_size": 600, "chunk_overlap": 100 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-small" },
+        "vector_store": { "provider": "qdrant", "collection": "support_kb" },
+        "retrieval": { "strategy": "hybrid", "top_k": 6 },
+        "reranker": { "enabled": true, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 3500, "include_metadata": true },
+        "prompt": {
+          "system": "You are a friendly customer support assistant. Use only the provided context. If unsure, escalate.",
+          "user_template": "Customer: {question}\n\nContext from docs/FAQs:\n{context}"
+        },
+        "generator": { "provider": "openai", "model": "gpt-4o-mini", "temperature": 0.3 },
+        "guardrails": { "input": ["pii"], "output": ["toxicity", "bias", "hallucination"] },
+        "human_in_the_loop": { "enabled": true, "trigger": "low_confidence" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "kubernetes" },
+        "review": { "exports": ["python", "yaml", "kubernetes"] }
+      }
+    },
+    {
+      "id": "legal-contracts",
+      "name": "Legal Contract Analyzer",
+      "description": "High-fidelity retrieval over contracts with clause-aware chunking and strict citation.",
+      "category": "legal",
+      "tags": ["legal", "contracts", "compliance", "citation"],
+      "recommended_use_cases": [
+        "Clause extraction and comparison",
+        "Vendor-contract review",
+        "Compliance audits"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "files", "paths": ["./contracts"] },
+        "document_loader": { "loaders": ["pdf", "docx"] },
+        "chunking": { "strategy": "clause", "chunk_size": 1200, "chunk_overlap": 250 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-large" },
+        "vector_store": { "provider": "qdrant", "collection": "legal_contracts" },
+        "retrieval": { "strategy": "hybrid", "top_k": 10 },
+        "reranker": { "enabled": true, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 5000, "include_metadata": true },
+        "prompt": {
+          "system": "You are a paralegal assistant. Quote contract clauses verbatim and cite the document and clause id.",
+          "user_template": "{question}\n\nRetrieved clauses:\n{context}"
+        },
+        "generator": { "provider": "anthropic", "model": "claude-3-5-sonnet-latest", "temperature": 0.0 },
+        "guardrails": { "input": ["pii"], "output": ["hallucination", "bias"] },
+        "human_in_the_loop": { "enabled": true, "trigger": "always" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision", "context_recall"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "kubernetes" },
+        "review": { "exports": ["python", "yaml", "kubernetes", "terraform"] }
+      }
+    },
+    {
+      "id": "medical-literature",
+      "name": "Medical Literature Assistant",
+      "description": "Grounded clinical Q&A over PubMed-style abstracts with strict factuality controls.",
+      "category": "healthcare",
+      "tags": ["healthcare", "research", "pubmed", "citations"],
+      "recommended_use_cases": [
+        "Clinical decision support (research only)",
+        "Literature review summarization",
+        "Drug interaction lookup"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "api", "paths": ["https://pubmed.ncbi.nlm.nih.gov"] },
+        "document_loader": { "loaders": ["json", "xml"] },
+        "chunking": { "strategy": "abstract", "chunk_size": 900, "chunk_overlap": 100 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-large" },
+        "vector_store": { "provider": "qdrant", "collection": "pubmed" },
+        "retrieval": { "strategy": "hybrid", "top_k": 12 },
+        "reranker": { "enabled": true, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 6000, "include_metadata": true },
+        "prompt": {
+          "system": "You are a medical research assistant. Cite PMIDs. Do not provide medical advice; provide literature evidence.",
+          "user_template": "Clinical question: {question}\n\nLiterature:\n{context}"
+        },
+        "generator": { "provider": "openai", "model": "gpt-4o", "temperature": 0.0 },
+        "guardrails": { "input": ["pii"], "output": ["hallucination", "bias", "toxicity"] },
+        "human_in_the_loop": { "enabled": true, "trigger": "always" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision", "context_recall"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "kubernetes" },
+        "review": { "exports": ["python", "yaml", "kubernetes"] }
+      }
+    },
+    {
+      "id": "ecommerce-product-search",
+      "name": "E-commerce Product Search",
+      "description": "Semantic product discovery over catalogues with attribute filters.",
+      "category": "ecommerce",
+      "tags": ["ecommerce", "catalog", "search", "filters"],
+      "recommended_use_cases": [
+        "Storefront semantic search",
+        "Personalized recommendations",
+        "Catalog enrichment"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "database", "paths": ["postgres://catalog"] },
+        "document_loader": { "loaders": ["json"] },
+        "chunking": { "strategy": "row", "chunk_size": 400, "chunk_overlap": 0 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-small" },
+        "vector_store": { "provider": "qdrant", "collection": "products" },
+        "retrieval": { "strategy": "hybrid", "top_k": 20 },
+        "reranker": { "enabled": true, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 2500, "include_metadata": true },
+        "prompt": {
+          "system": "You help shoppers find products. Return a short JSON list of matching SKUs with reasoning.",
+          "user_template": "Shopper query: {question}\n\nCandidate products:\n{context}"
+        },
+        "generator": { "provider": "openai", "model": "gpt-4o-mini", "temperature": 0.2 },
+        "guardrails": { "input": [], "output": ["toxicity"] },
+        "human_in_the_loop": { "enabled": false, "trigger": "low_confidence" },
+        "evaluation": { "framework": "ragas", "metrics": ["answer_relevancy", "context_precision"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "kubernetes" },
+        "review": { "exports": ["python", "yaml", "kubernetes"] }
+      }
+    },
+    {
+      "id": "financial-research",
+      "name": "Financial Research Analyst",
+      "description": "Earnings calls, filings and analyst notes with citation-first answers.",
+      "category": "finance",
+      "tags": ["finance", "filings", "research", "citation"],
+      "recommended_use_cases": [
+        "Equity research summarization",
+        "10-K / 10-Q comparison",
+        "Earnings call insights"
+      ],
+      "stages": {
+        "cloud_provider": { "provider": "aws", "region": "us-east-1" },
+        "data_source": { "type": "files", "paths": ["./filings", "./earnings"] },
+        "document_loader": { "loaders": ["pdf", "html"] },
+        "chunking": { "strategy": "section", "chunk_size": 1500, "chunk_overlap": 300 },
+        "embedding": { "provider": "openai", "model": "text-embedding-3-large" },
+        "vector_store": { "provider": "qdrant", "collection": "financials" },
+        "retrieval": { "strategy": "hybrid", "top_k": 10 },
+        "reranker": { "enabled": true, "provider": "cohere", "model": "rerank-english-v3.0" },
+        "context_assembly": { "max_tokens": 5000, "include_metadata": true },
+        "prompt": {
+          "system": "You are a financial research analyst. Cite filings by ticker, year, and section. No speculation.",
+          "user_template": "{question}\n\nFilings:\n{context}"
+        },
+        "generator": { "provider": "openai", "model": "gpt-4o", "temperature": 0.0 },
+        "guardrails": { "input": ["pii"], "output": ["hallucination", "bias"] },
+        "human_in_the_loop": { "enabled": true, "trigger": "low_confidence" },
+        "evaluation": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision"] },
+        "observability": { "tracing": true, "metrics": true, "log_level": "INFO" },
+        "deployment": { "target": "kubernetes" },
+        "review": { "exports": ["python", "yaml", "kubernetes", "terraform"] }
+      }
+    }
+  ]
+}
