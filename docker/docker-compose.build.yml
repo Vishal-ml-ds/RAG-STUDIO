@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------
+# Build overlay - adds `build:` blocks so local builds replace
+# the GHCR images declared in the base file.
+#
+# Usage:
+#   docker compose \
+#     -f docker/docker-compose.yml \
+#     -f docker/docker-compose.build.yml \
+#     build
+# ---------------------------------------------------------------
+
+services:
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+      target: runtime
+    image: ghcr.io/${GITHUB_REPOSITORY:-Vishal-ml-ds/RAG-STUDIO}/api:${IMAGE_TAG:-latest}
+
+  worker:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+      target: runtime
+    image: ghcr.io/${GITHUB_REPOSITORY:-Vishal-ml-ds/RAG-STUDIO}/api:${IMAGE_TAG:-latest}
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:8000}
+    image: ghcr.io/${GITHUB_REPOSITORY:-Vishal-ml-ds/RAG-STUDIO}/web:${IMAGE_TAG:-latest}
