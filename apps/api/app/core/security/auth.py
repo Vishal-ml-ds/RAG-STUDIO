@@ -8,21 +8,31 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import uuid
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import Settings
 
 ALGORITHM = "HS256"
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# bcrypt only consumes the first 72 bytes of any input. We truncate explicitly
+# because bcrypt>=5.0 raises ValueError instead of silently truncating.
+_BCRYPT_MAX_BYTES = 72
+
+
+def _bytes(password: str) -> bytes:
+    return password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
 
 
 def hash_password(password: str) -> str:
-    return _pwd_context.hash(password)
+    return bcrypt.hashpw(_bytes(password), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return _pwd_context.verify(plain, hashed)
+    try:
+        return bcrypt.checkpw(_bytes(plain), hashed.encode("utf-8"))
+    except ValueError:
+        return False
 
 
 @dataclass(frozen=True)
