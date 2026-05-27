@@ -24,6 +24,8 @@ from app.observability.context import (
 from app.observability.logging_setup import configure_logging
 from app.routers.auth import router as auth_router
 from app.routers.designer import router as designer_router
+from app.routers.autopilot import router as autopilot_router
+from app.routers.evaluation import router as evaluation_router
 from app.routers.guardrails import router as guardrails_router
 from app.routers.health import router as health_router
 from app.routers.projects import router as projects_router
@@ -199,6 +201,8 @@ def create_app() -> FastAPI:
     app.include_router(designer_router)
     app.include_router(templates_router)
     app.include_router(guardrails_router)
+    app.include_router(evaluation_router)
+    app.include_router(autopilot_router)
 
     return app
 
