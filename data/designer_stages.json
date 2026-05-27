@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "stages": [
+    {
+      "id": "cloud_provider",
+      "name": "Cloud & Provider",
+      "category": "infrastructure",
+      "description": "Choose cloud provider (AWS / GCP / Azure / on-prem) and region.",
+      "default": { "provider": "aws", "region": "us-east-1" }
+    },
+    {
+      "id": "data_source",
+      "name": "Data Source",
+      "category": "ingestion",
+      "description": "Files, URLs, databases, or APIs feeding the corpus.",
+      "default": { "type": "files", "paths": [] }
+    },
+    {
+      "id": "document_loader",
+      "name": "Document Loader",
+      "category": "ingestion",
+      "description": "Parser for PDFs, DOCX, HTML, Markdown, JSON.",
+      "default": { "loaders": ["pdf", "docx", "html"] }
+    },
+    {
+      "id": "chunking",
+      "name": "Chunking Strategy",
+      "category": "ingestion",
+      "description": "How documents are split before embedding.",
+      "default": { "strategy": "recursive", "chunk_size": 1000, "chunk_overlap": 200 }
+    },
+    {
+      "id": "embedding",
+      "name": "Embedding Model",
+      "category": "ingestion",
+      "description": "Vector encoder for text → vector.",
+      "default": { "provider": "openai", "model": "text-embedding-3-small" }
+    },
+    {
+      "id": "vector_store",
+      "name": "Vector Store",
+      "category": "ingestion",
+      "description": "Where embeddings live (Qdrant, Weaviate, pgvector, FAISS).",
+      "default": { "provider": "qdrant", "collection": "default" }
+    },
+    {
+      "id": "retrieval",
+      "name": "Retrieval Strategy",
+      "category": "query",
+      "description": "Dense / sparse / hybrid + top-k.",
+      "default": { "strategy": "dense", "top_k": 5 }
+    },
+    {
+      "id": "reranker",
+      "name": "Reranker",
+      "category": "query",
+      "description": "Cross-encoder reranking after initial retrieval (optional).",
+      "default": { "enabled": false, "provider": "cohere", "model": "rerank-english-v3.0" }
+    },
+    {
+      "id": "context_assembly",
+      "name": "Context Assembly",
+      "category": "query",
+      "description": "How retrieved chunks are merged into the prompt.",
+      "default": { "max_tokens": 3000, "include_metadata": true }
+    },
+    {
+      "id": "prompt",
+      "name": "Prompt Template",
+      "category": "query",
+      "description": "System + user prompt scaffold.",
+      "default": { "system": "You are a helpful assistant grounded in the provided context.", "user_template": "{question}\n\nContext:\n{context}" }
+    },
+    {
+      "id": "generator",
+      "name": "Generator (LLM)",
+      "category": "query",
+      "description": "The model that writes the final answer.",
+      "default": { "provider": "openai", "model": "gpt-4o-mini", "temperature": 0.2 }
+    },
+    {
+      "id": "guardrails",
+      "name": "Guardrails",
+      "category": "safety",
+      "description": "Input / output policies (PII, toxicity, bias, hallucination).",
+      "default": { "input": ["pii"], "output": ["toxicity", "hallucination"] }
+    },
+    {
+      "id": "human_in_the_loop",
+      "name": "Human-in-the-Loop",
+      "category": "safety",
+      "description": "Approval gates for sensitive answers.",
+      "default": { "enabled": false, "trigger": "low_confidence" }
+    },
+    {
+      "id": "evaluation",
+      "name": "Evaluation",
+      "category": "quality",
+      "description": "RAGAS metrics (faithfulness, answer relevancy, context precision).",
+      "default": { "framework": "ragas", "metrics": ["faithfulness", "answer_relevancy", "context_precision"] }
+    },
+    {
+      "id": "observability",
+      "name": "Observability",
+      "category": "ops",
+      "description": "Tracing, metrics, request logs.",
+      "default": { "tracing": true, "metrics": true, "log_level": "INFO" }
+    },
+    {
+      "id": "deployment",
+      "name": "Deployment Target",
+      "category": "ops",
+      "description": "How the pipeline ships (Docker Compose, K8s, serverless).",
+      "default": { "target": "docker-compose" }
+    },
+    {
+      "id": "review",
+      "name": "Review & Export",
+      "category": "ops",
+      "description": "Final sign-off + export to Python / YAML / Terraform / K8s.",
+      "default": { "exports": ["python", "yaml"] }
+    }
+  ]
+}
