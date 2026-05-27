@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "providers": [
+    {
+      "id": "aws",
+      "name": "Amazon Web Services",
+      "regions": [
+        "us-east-1",
+        "us-east-2",
+        "us-west-2",
+        "eu-west-1",
+        "eu-central-1",
+        "ap-south-1",
+        "ap-southeast-1",
+        "ap-northeast-1"
+      ],
+      "services_used": [
+        "ECS Fargate",
+        "RDS Postgres",
+        "ElastiCache Redis",
+        "S3",
+        "OpenSearch",
+        "Bedrock",
+        "Secrets Manager",
+        "CloudWatch"
+      ]
+    },
+    {
+      "id": "gcp",
+      "name": "Google Cloud Platform",
+      "regions": [
+        "us-central1",
+        "us-east1",
+        "us-west1",
+        "europe-west1",
+        "europe-west4",
+        "asia-south1",
+        "asia-southeast1",
+        "asia-northeast1"
+      ],
+      "services_used": [
+        "Cloud Run",
+        "Cloud SQL Postgres",
+        "Memorystore Redis",
+        "Cloud Storage",
+        "Vertex AI",
+        "Secret Manager",
+        "Cloud Logging"
+      ]
+    },
+    {
+      "id": "azure",
+      "name": "Microsoft Azure",
+      "regions": [
+        "eastus",
+        "eastus2",
+        "westus2",
+        "westeurope",
+        "northeurope",
+        "centralindia",
+        "southeastasia",
+        "japaneast"
+      ],
+      "services_used": [
+        "Container Apps",
+        "Azure Database for PostgreSQL",
+        "Azure Cache for Redis",
+        "Blob Storage",
+        "Azure OpenAI",
+        "Key Vault",
+        "Azure Monitor"
+      ]
+    },
+    {
+      "id": "digitalocean",
+      "name": "DigitalOcean",
+      "regions": [
+        "nyc1",
+        "nyc3",
+        "sfo3",
+        "lon1",
+        "fra1",
+        "ams3",
+        "blr1",
+        "sgp1"
+      ],
+      "services_used": [
+        "App Platform",
+        "Managed Postgres",
+        "Managed Redis",
+        "Spaces",
+        "Functions"
+      ]
+    },
+    {
+      "id": "on-prem",
+      "name": "On-Premise / Self-Hosted",
+      "regions": ["self"],
+      "services_used": [
+        "Docker Compose",
+        "Kubernetes",
+        "Postgres",
+        "Redis",
+        "Qdrant",
+        "MinIO",
+        "Nginx"
+      ]
+    }
+  ]
+}

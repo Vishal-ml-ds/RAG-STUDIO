@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "strategies": [
+    {
+      "id": "dense",
+      "name": "Dense (Embedding) Retrieval",
+      "description": "Cosine/inner-product search over dense embeddings. Strong default for semantic queries.",
+      "requires": ["embedding", "vector_store"],
+      "params": {
+        "top_k": 4,
+        "score_threshold": 0.0
+      }
+    },
+    {
+      "id": "sparse_bm25",
+      "name": "Sparse BM25",
+      "description": "Lexical BM25 over a token index. Best for exact-keyword or rare-term queries.",
+      "requires": ["bm25_index"],
+      "params": {
+        "top_k": 4,
+        "b":  0.75,
+        "k1": 1.5
+      }
+    },
+    {
+      "id": "hybrid",
+      "name": "Hybrid (Dense + Sparse)",
+      "description": "Fuses dense and sparse rankings with Reciprocal Rank Fusion or weighted scoring.",
+      "requires": ["embedding", "vector_store", "bm25_index"],
+      "params": {
+        "top_k": 6,
+        "alpha": 0.5,
+        "fusion": "rrf",
+        "rrf_k": 60
+      }
+    },
+    {
+      "id": "mmr",
+      "name": "Maximal Marginal Relevance",
+      "description": "Diversifies dense results by penalizing similarity to already-selected chunks.",
+      "requires": ["embedding", "vector_store"],
+      "params": {
+        "top_k": 4,
+        "fetch_k": 20,
+        "lambda_mult": 0.5
+      }
+    },
+    {
+      "id": "hyde",
+      "name": "Hypothetical Document Embeddings (HyDE)",
+      "description": "Generates a hypothetical answer with an LLM, embeds it, and retrieves against that vector.",
+      "requires": ["embedding", "vector_store", "generator"],
+      "params": {
+        "top_k": 4,
+        "hypothesis_model": "gpt-4o-mini",
+        "num_hypotheses": 1
+      }
+    },
+    {
+      "id": "multi_query",
+      "name": "Multi-Query Expansion",
+      "description": "Generates several paraphrases of the question and merges their retrieved chunks.",
+      "requires": ["embedding", "vector_store", "generator"],
+      "params": {
+        "top_k": 4,
+        "num_queries": 3,
+        "merge": "rrf"
+      }
+    },
+    {
+      "id": "parent_doc",
+      "name": "Parent Document Retriever",
+      "description": "Indexes small chunks but returns the parent document/section for richer context.",
+      "requires": ["embedding", "vector_store", "doc_store"],
+      "params": {
+        "child_top_k": 6,
+        "parent_top_k": 3
+      }
+    },
+    {
+      "id": "self_query",
+      "name": "Self-Query (Metadata Filter)",
+      "description": "LLM parses the query into a metadata filter plus a semantic query for filtered search.",
+      "requires": ["embedding", "vector_store", "generator", "metadata_schema"],
+      "params": {
+        "top_k": 4,
+        "filter_model": "gpt-4o-mini"
+      }
+    }
+  ]
+}

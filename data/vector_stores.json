@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "vector_stores": [
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "hosted": false,
+      "open_source": true,
+      "supports_filters": true,
+      "supports_hybrid": true,
+      "default_url": "http://localhost:6333"
+    },
+    {
+      "id": "weaviate",
+      "name": "Weaviate",
+      "hosted": true,
+      "open_source": true,
+      "supports_filters": true,
+      "supports_hybrid": true,
+      "default_url": "http://localhost:8080"
+    },
+    {
+      "id": "pinecone",
+      "name": "Pinecone",
+      "hosted": true,
+      "open_source": false,
+      "supports_filters": true,
+      "supports_hybrid": true,
+      "default_url": "https://controller.us-east-1.pinecone.io"
+    },
+    {
+      "id": "chroma",
+      "name": "Chroma",
+      "hosted": false,
+      "open_source": true,
+      "supports_filters": true,
+      "supports_hybrid": false,
+      "default_url": "http://localhost:8000"
+    },
+    {
+      "id": "pgvector",
+      "name": "PostgreSQL pgvector",
+      "hosted": false,
+      "open_source": true,
+      "supports_filters": true,
+      "supports_hybrid": true,
+      "default_url": "postgresql://localhost:5432/postgres"
+    },
+    {
+      "id": "milvus",
+      "name": "Milvus",
+      "hosted": true,
+      "open_source": true,
+      "supports_filters": true,
+      "supports_hybrid": true,
+      "default_url": "http://localhost:19530"
+    },
+    {
+      "id": "faiss",
+      "name": "FAISS",
+      "hosted": false,
+      "open_source": true,
+      "supports_filters": false,
+      "supports_hybrid": false,
+      "default_url": "file://./faiss_index"
+    }
+  ]
+}
