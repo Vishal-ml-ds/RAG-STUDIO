@@ -13,6 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.core.guardrails.bias import detect_bias
+from app.core.guardrails.factuality import score_factuality
 from app.core.guardrails.pii import detect_pii
 from app.core.guardrails.toxicity import detect_toxicity
 
@@ -69,6 +71,8 @@ def apply_input_guardrails(
         findings.extend(detect_pii(text))
     if "toxicity" in policies:
         findings.extend(detect_toxicity(text))
+    if "bias" in policies:
+        findings.extend(detect_bias(text))
 
     return GuardrailResult(allowed=_decide(findings), findings=findings)
 
@@ -80,13 +84,19 @@ def apply_output_guardrails(
     policies: list[str] | None = None,
 ) -> GuardrailResult:
     """Run the configured output checks against ``answer`` (and ``context``)."""
-    policies = policies or ["toxicity"]
+    policies = policies or ["toxicity", "hallucination"]
     findings: list[Finding] = []
 
     if "pii" in policies:
         findings.extend(detect_pii(answer))
     if "toxicity" in policies:
         findings.extend(detect_toxicity(answer))
+    if "bias" in policies:
+        findings.extend(detect_bias(answer))
+    if "hallucination" in policies or "factuality" in policies:
+        _, finding = score_factuality(answer, context or "")
+        if finding is not None:
+            findings.append(finding)
 
     return GuardrailResult(allowed=_decide(findings), findings=findings)
 
