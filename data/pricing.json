@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "currency": "USD",
+  "unit": "per_1m_tokens",
+  "notes": "Prices reflect public list rates and may change. Override via PRICING_CATALOG_PATH.",
+  "pricing": [
+    {
+      "provider": "openai",
+      "model": "text-embedding-3-small",
+      "kind": "embedding",
+      "input_per_1m_tokens": 0.02,
+      "output_per_1m_tokens": 0.0,
+      "currency": "USD"
+    },
+    {
+      "provider": "openai",
+      "model": "text-embedding-3-large",
+      "kind": "embedding",
+      "input_per_1m_tokens": 0.13,
+      "output_per_1m_tokens": 0.0,
+      "currency": "USD"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "kind": "chat",
+      "input_per_1m_tokens": 2.50,
+      "output_per_1m_tokens": 10.00,
+      "currency": "USD"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "kind": "chat",
+      "input_per_1m_tokens": 0.15,
+      "output_per_1m_tokens": 0.60,
+      "currency": "USD"
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-3.5-turbo",
+      "kind": "chat",
+      "input_per_1m_tokens": 0.50,
+      "output_per_1m_tokens": 1.50,
+      "currency": "USD"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet",
+      "kind": "chat",
+      "input_per_1m_tokens": 3.00,
+      "output_per_1m_tokens": 15.00,
+      "currency": "USD"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-3-opus",
+      "kind": "chat",
+      "input_per_1m_tokens": 15.00,
+      "output_per_1m_tokens": 75.00,
+      "currency": "USD"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-3-haiku",
+      "kind": "chat",
+      "input_per_1m_tokens": 0.25,
+      "output_per_1m_tokens": 1.25,
+      "currency": "USD"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "kind": "chat",
+      "input_per_1m_tokens": 1.00,
+      "output_per_1m_tokens": 5.00,
+      "currency": "USD"
+    },
+    {
+      "provider": "google",
+      "model": "gemini-1.5-pro",
+      "kind": "chat",
+      "input_per_1m_tokens": 1.25,
+      "output_per_1m_tokens": 5.00,
+      "currency": "USD"
+    },
+    {
+      "provider": "google",
+      "model": "gemini-1.5-flash",
+      "kind": "chat",
+      "input_per_1m_tokens": 0.075,
+      "output_per_1m_tokens": 0.30,
+      "currency": "USD"
+    },
+    {
+      "provider": "cohere",
+      "model": "embed-english-v3.0",
+      "kind": "embedding",
+      "input_per_1m_tokens": 0.10,
+      "output_per_1m_tokens": 0.0,
+      "currency": "USD"
+    },
+    {
+      "provider": "cohere",
+      "model": "rerank-english-v3.0",
+      "kind": "rerank",
+      "input_per_1m_tokens": 2.00,
+      "output_per_1m_tokens": 0.0,
+      "currency": "USD"
+    },
+    {
+      "provider": "mistral",
+      "model": "mistral-large",
+      "kind": "chat",
+      "input_per_1m_tokens": 2.00,
+      "output_per_1m_tokens": 6.00,
+      "currency": "USD"
+    },
+    {
+      "provider": "mistral",
+      "model": "mistral-small",
+      "kind": "chat",
+      "input_per_1m_tokens": 0.20,
+      "output_per_1m_tokens": 0.60,
+      "currency": "USD"
+    }
+  ]
+}

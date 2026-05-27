@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "strategies": [
+    {
+      "id": "recursive",
+      "name": "Recursive Character",
+      "description": "Splits text by a hierarchy of separators (paragraph, sentence, word) until each chunk fits the target size. Good general-purpose default.",
+      "params": {
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "separators": ["\n\n", "\n", ". ", " ", ""]
+      }
+    },
+    {
+      "id": "semantic",
+      "name": "Semantic Splitter",
+      "description": "Groups sentences by embedding-similarity breakpoints, producing variable-size chunks that respect topical boundaries.",
+      "params": {
+        "embedding_model": "text-embedding-3-small",
+        "breakpoint_threshold_type": "percentile",
+        "breakpoint_threshold_amount": 95
+      }
+    },
+    {
+      "id": "sliding_window",
+      "name": "Sliding Window",
+      "description": "Fixed-size windows with configurable stride. Useful for code or transcripts where structural separators are weak.",
+      "params": {
+        "window_size": 512,
+        "stride": 128
+      }
+    },
+    {
+      "id": "markdown_aware",
+      "name": "Markdown Aware",
+      "description": "Respects Markdown headings, code blocks, and list structure so chunks stay readable.",
+      "params": {
+        "chunk_size": 1200,
+        "chunk_overlap": 150,
+        "headers_to_split_on": [
+          ["#", "h1"],
+          ["##", "h2"],
+          ["###", "h3"]
+        ]
+      }
+    },
+    {
+      "id": "code_aware",
+      "name": "Code Aware",
+      "description": "Splits along code constructs (functions, classes, blocks) per language so symbols stay intact.",
+      "params": {
+        "chunk_size": 800,
+        "chunk_overlap": 100,
+        "language": "python"
+      }
+    },
+    {
+      "id": "sentence",
+      "name": "Sentence",
+      "description": "Sentence-level splitting with a small overlap. Best for FAQ and short-answer corpora.",
+      "params": {
+        "max_sentences_per_chunk": 6,
+        "sentence_overlap": 1
+      }
+    },
+    {
+      "id": "paragraph",
+      "name": "Paragraph",
+      "description": "One chunk per paragraph. Best when source documents have well-structured prose.",
+      "params": {
+        "min_chunk_chars": 200,
+        "max_chunk_chars": 1500
+      }
+    }
+  ]
+}

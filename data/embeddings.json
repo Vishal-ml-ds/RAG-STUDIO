@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "embeddings": [
+    {
+      "id": "openai.text-embedding-3-small",
+      "provider": "openai",
+      "model": "text-embedding-3-small",
+      "dimensions": 1536,
+      "max_input_tokens": 8191,
+      "supports_dimension_reduction": true,
+      "default": true
+    },
+    {
+      "id": "openai.text-embedding-3-large",
+      "provider": "openai",
+      "model": "text-embedding-3-large",
+      "dimensions": 3072,
+      "max_input_tokens": 8191,
+      "supports_dimension_reduction": true,
+      "default": false
+    },
+    {
+      "id": "openai.text-embedding-ada-002",
+      "provider": "openai",
+      "model": "text-embedding-ada-002",
+      "dimensions": 1536,
+      "max_input_tokens": 8191,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "cohere.embed-english-v3.0",
+      "provider": "cohere",
+      "model": "embed-english-v3.0",
+      "dimensions": 1024,
+      "max_input_tokens": 512,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "cohere.embed-multilingual-v3.0",
+      "provider": "cohere",
+      "model": "embed-multilingual-v3.0",
+      "dimensions": 1024,
+      "max_input_tokens": 512,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "google.text-embedding-004",
+      "provider": "google",
+      "model": "text-embedding-004",
+      "dimensions": 768,
+      "max_input_tokens": 2048,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "mistral.mistral-embed",
+      "provider": "mistral",
+      "model": "mistral-embed",
+      "dimensions": 1024,
+      "max_input_tokens": 8192,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "huggingface.bge-large-en-v1.5",
+      "provider": "huggingface",
+      "model": "BAAI/bge-large-en-v1.5",
+      "dimensions": 1024,
+      "max_input_tokens": 512,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "huggingface.all-MiniLM-L6-v2",
+      "provider": "huggingface",
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "dimensions": 384,
+      "max_input_tokens": 256,
+      "supports_dimension_reduction": false,
+      "default": false
+    },
+    {
+      "id": "huggingface.e5-large-v2",
+      "provider": "huggingface",
+      "model": "intfloat/e5-large-v2",
+      "dimensions": 1024,
+      "max_input_tokens": 512,
+      "supports_dimension_reduction": false,
+      "default": false
+    }
+  ]
+}
