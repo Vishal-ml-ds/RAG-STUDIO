@@ -1,0 +1,114 @@
+# ---------------------------------------------------------------
+# Prod overlay - restart policies, tighter healthchecks, and
+# modest resource ceilings. Size limits per environment (these
+# are baselines, not production targets).
+#
+# Usage:
+#   docker compose \
+#     -f docker/docker-compose.yml \
+#     -f docker/docker-compose.prod.yml \
+#     up -d
+# ---------------------------------------------------------------
+
+services:
+  db:
+    restart: unless-stopped
+    healthcheck:
+      interval: 5s
+      timeout:  3s
+      retries:  10
+    deploy:
+      resources:
+        limits:
+          cpus:   "2"
+          memory: 2G
+
+  redis:
+    restart: unless-stopped
+    healthcheck:
+      interval: 5s
+      timeout:  3s
+      retries:  10
+    deploy:
+      resources:
+        limits:
+          cpus:   "1"
+          memory: 1G
+
+  vector-db:
+    restart: unless-stopped
+    healthcheck:
+      interval: 10s
+      timeout:  3s
+      retries:  10
+    deploy:
+      resources:
+        limits:
+          cpus:   "2"
+          memory: 4G
+
+  mlflow:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus:   "1"
+          memory: 1G
+
+  minio:
+    restart: unless-stopped
+    healthcheck:
+      interval: 10s
+      timeout:  3s
+      retries:  10
+    deploy:
+      resources:
+        limits:
+          cpus:   "1"
+          memory: 1G
+
+  api:
+    restart: unless-stopped
+    healthcheck:
+      interval: 15s
+      timeout:  5s
+      retries:  10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus:   "2"
+          memory: 2G
+
+  worker:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus:   "2"
+          memory: 2G
+
+  web:
+    restart: unless-stopped
+    healthcheck:
+      interval: 15s
+      timeout:  5s
+      retries:  10
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus:   "2"
+          memory: 2G
+
+  nginx:
+    restart: unless-stopped
+    healthcheck:
+      interval: 15s
+      timeout:  3s
+      retries:  10
+    deploy:
+      resources:
+        limits:
+          cpus:   "1"
+          memory: 256M
