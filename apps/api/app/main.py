@@ -7,23 +7,66 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
+from starlette.responses import JSONResponse
 import structlog
 
 from app.config import get_settings
+from app.core.security.auth import decode_access_token, hash_password
 from app.metadata import API_DESCRIPTION, API_NAME, API_SEMVER
+from app.models import Base, User
 from app.observability.context import (
     bind_request_observability,
     clear_observability_context,
 )
 from app.observability.logging_setup import configure_logging
+from app.routers.auth import router as auth_router
 from app.routers.health import router as health_router
 
 logger = structlog.get_logger(__name__)
 
 
+async def _seed_bootstrap_users(settings) -> None:
+    """Idempotently seed dev users from settings.auth_bootstrap_users.
+
+    Format: comma-separated ``email:password:role:uuid`` entries.
+    """
+    engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with async_session() as session:
+        for entry in settings.auth_bootstrap_users.split(","):
+            parts = entry.strip().split(":")
+            if len(parts) < 3:
+                continue
+            email, password, role = parts[0], parts[1], parts[2]
+            user_id = uuid.UUID(parts[3]) if len(parts) >= 4 else uuid.uuid4()
+
+            existing = await session.scalar(select(User).where(User.email == email))
+            if existing:
+                continue
+
+            session.add(
+                User(
+                    id=user_id,
+                    email=email,
+                    password_hash=hash_password(password),
+                    name=email.split("@")[0].capitalize(),
+                    role=role,
+                    email_verified=True,
+                    is_active=True,
+                )
+            )
+            logger.info("bootstrap_user_seeded", email=email, role=role)
+
+        await session.commit()
+    await engine.dispose()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup / shutdown lifecycle."""
     settings = get_settings()
     configure_logging(settings.log_level)
 
@@ -33,6 +76,19 @@ async def lifespan(app: FastAPI):
         log_level=settings.log_level,
         version=API_SEMVER,
     )
+
+    if settings.app_env in {"development", "test"}:
+        engine = create_async_engine(
+            settings.database_url,
+            echo=settings.is_development,
+            poolclass=NullPool,
+        )
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        await engine.dispose()
+
+        if settings.auth_bootstrap_users:
+            await _seed_bootstrap_users(settings)
 
     yield
 
@@ -66,10 +122,29 @@ def create_app() -> FastAPI:
     async def observability_middleware(request: Request, call_next):
         start = time.perf_counter()
 
+        # JWT enforcement for /api/* (except /api/auth/*).
+        if (
+            request.method != "OPTIONS"
+            and request.url.path.startswith("/api/")
+            and not request.url.path.startswith("/api/auth/")
+        ):
+            auth_header = request.headers.get("Authorization") or ""
+            if not auth_header.startswith("Bearer "):
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Missing bearer token"},
+                )
+            token = auth_header.removeprefix("Bearer ").strip()
+            try:
+                decode_access_token(settings, token)
+            except ValueError:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Invalid or expired token"},
+                )
+
         inbound_rid = (
-            request.headers.get("X-Request-ID")
-            or request.headers.get("x-request-id")
-            or ""
+            request.headers.get("X-Request-ID") or request.headers.get("x-request-id") or ""
         ).strip()
         request_id = inbound_rid or str(uuid.uuid4())
 
@@ -80,10 +155,7 @@ def create_app() -> FastAPI:
         ).strip()
         correlation_id = inbound_cid or request_id
 
-        bind_request_observability(
-            request_id=request_id,
-            correlation_id=correlation_id,
-        )
+        bind_request_observability(request_id=request_id, correlation_id=correlation_id)
 
         try:
             response = await call_next(request)
@@ -93,9 +165,7 @@ def create_app() -> FastAPI:
             response.headers.setdefault("X-Correlation-ID", correlation_id)
             response.headers.setdefault("X-Content-Type-Options", "nosniff")
             response.headers.setdefault("X-Frame-Options", "DENY")
-            response.headers.setdefault(
-                "Referrer-Policy", "strict-origin-when-cross-origin"
-            )
+            response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
 
             logger.info(
                 "request",
@@ -104,7 +174,6 @@ def create_app() -> FastAPI:
                 status_code=response.status_code,
                 duration_ms=duration_ms,
             )
-
             return response
 
         except Exception:
@@ -121,6 +190,7 @@ def create_app() -> FastAPI:
             clear_observability_context()
 
     app.include_router(health_router)
+    app.include_router(auth_router)
 
     return app
 
