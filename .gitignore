@@ -1,0 +1,104 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+!.env.example
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Test
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Misc
+*.local
+.turbo/
+.cache/
+
+# Docker
+docker/data/
+
+# DB
+*.sqlite
+*.sqlite3
+*.db
+
+# Local data
+.tmp/
+tmp/
+data/local/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Models / checkpoints
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Secrets (defense in depth)
+*.pem
+*.key
+secrets/
+credentials.json
+token.json
