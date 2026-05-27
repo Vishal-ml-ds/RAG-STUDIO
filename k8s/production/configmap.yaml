@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ragstudio-config
+  namespace: rag-studio
+  labels:
+    app.kubernetes.io/part-of: rag-studio
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "INFO"
+  MLFLOW_ENABLED: "true"
+  MLFLOW_EXPERIMENT_NAME: "rag-studio-autopilot"
+  MLFLOW_TRACKING_URI: "http://mlflow.rag-studio.svc.cluster.local:5000"
+  QDRANT_URL: "http://qdrant.rag-studio.svc.cluster.local:6333"
+  MINIO_ENDPOINT: "http://minio.rag-studio.svc.cluster.local:9000"
+  MINIO_BUCKET: "rag-studio-documents"
+  AUTH_REQUIRED: "true"
+  AUTH_ACCESS_TOKEN_TTL_MINUTES: "60"
+  AUTH_RATE_LIMIT_PER_MINUTE: "120"
+  NEXT_PUBLIC_API_URL: "http://api.rag-studio.svc.cluster.local:8000"
