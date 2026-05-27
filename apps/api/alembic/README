@@ -1,0 +1,17 @@
+Alembic migrations for RAG Studio.
+
+Generate a new revision (after editing models):
+
+    alembic revision --autogenerate -m "describe change"
+
+Apply all pending migrations:
+
+    alembic upgrade head
+
+Roll back one revision:
+
+    alembic downgrade -1
+
+The DB URL is read from app.config.Settings.database_url_sync at runtime,
+so set DATABASE_URL in your .env (the alembic.ini sqlalchemy.url is only a
+fallback / linting placeholder).
