@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg-base: #0a0a0b;
+    --bg-panel: #111114;
+    --bg-raised: #16161a;
+    --bg-inset: #0d0d10;
+    --border-default: #1f1f23;
+    --border-subtle: #18181c;
+    --border-strong: #2a2a31;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --accent-subtle: #3b1e6b;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+  }
+
+  html,
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: rgba(124, 58, 237, 0.4);
+    color: var(--text-primary);
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-color: var(--border-default);
+  }
+
+  /* Subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-strong);
+  }
+}
+
+@layer utilities {
+  .text-gradient-accent {
+    background: linear-gradient(120deg, #fafafa 0%, #c4b5fd 50%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .ring-focus {
+    @apply outline-none ring-2 ring-accent/60 ring-offset-2 ring-offset-bg-base;
+  }
+}
