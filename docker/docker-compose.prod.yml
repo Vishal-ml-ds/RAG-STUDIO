@@ -1,0 +1,124 @@
+# RAG Studio — Production Override
+# Merges with docker-compose.yml:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+#
+# Changes from base:
+#   - Pre-built images from GHCR (base has no local `build:` — no Compose `!reset` tags needed)
+#   - Resource limits (CPU + memory) to protect host
+#   - always restart policy
+#   - No dev bind-mounts
+#   - Infra stays off the host except where prod explicitly publishes a port below
+
+name: unified-rag-studio
+
+services:
+
+  web:
+    image: ghcr.io/${GITHUB_REPOSITORY:-yourusername/rag-studio}-web:${IMAGE_TAG:-latest}
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    restart: always
+
+  api:
+    image: ghcr.io/${GITHUB_REPOSITORY:-yourusername/rag-studio}-api:${IMAGE_TAG:-latest}
+    environment:
+      - APP_ENV=production
+      - LOG_LEVEL=INFO
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    restart: always
+    ports:
+      - "8000:8000" # Narrow if nginx fronts all traffic externally
+
+  worker:
+    image: ghcr.io/${GITHUB_REPOSITORY:-yourusername/rag-studio}-api:${IMAGE_TAG:-latest}
+    command: celery -A app.worker:celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - APP_ENV=production
+      - LOG_LEVEL=INFO
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 4G
+        reservations:
+          cpus: "1.0"
+          memory: 1G
+    restart: always
+
+  db:
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+    restart: always
+
+  redis:
+    command: >
+      redis-server
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --save 60 1
+      --requirepass ${REDIS_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+    restart: always
+
+  vector-db:
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+    restart: always
+
+  mlflow:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    restart: always
+
+  minio:
+    ports:
+      - "9000:9000" # S3 API only; console (9001) stays off host in prod
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    restart: always
+
+  nginx:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    restart: always
