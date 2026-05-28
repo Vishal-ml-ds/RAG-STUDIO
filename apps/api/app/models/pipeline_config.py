@@ -1,0 +1,59 @@
+"""PipelineConfig ORM model — persisted RAG pipeline configuration."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+import uuid
+
+from sqlalchemy import JSON, ForeignKey, Index, String, Text, Uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base, TimestampMixin
+
+if TYPE_CHECKING:
+    from app.models.deployment import Deployment
+    from app.models.evaluation_run import EvaluationRun
+    from app.models.project import Project
+
+
+class PipelineConfig(Base, TimestampMixin):
+    __tablename__ = "pipeline_configs"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    version: Mapped[str] = mapped_column(String(32), nullable=False, server_default="1.0.0")
+    cloud_provider: Mapped[str] = mapped_column(String(32), nullable=False)
+    # Full PipelineConfigurationSchema stored as binary JSON
+    config: Mapped[dict] = mapped_column(JSON, nullable=False)
+    source: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    build_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    project: Mapped[Project] = relationship("Project", back_populates="pipeline_configs")
+    evaluations: Mapped[list[EvaluationRun]] = relationship(
+        "EvaluationRun",
+        back_populates="config",
+        cascade="all, delete-orphan",
+    )
+    deployments: Mapped[list[Deployment]] = relationship(
+        "Deployment",
+        back_populates="config",
+        cascade="all, delete-orphan",
+    )
+
+    __table_args__ = (Index("ix_pipeline_configs_user_id_id", "user_id", "id"),)
